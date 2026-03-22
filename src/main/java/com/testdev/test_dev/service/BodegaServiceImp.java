@@ -22,8 +22,8 @@ public class BodegaServiceImp implements BodegaService {
     }
 
     @Override
-    public void save(Bodega bodega) {
-        bodegaRepository.save(bodega);
+    public Bodega save(Bodega bodega) {
+        return bodegaRepository.save(bodega);
     }
 
     @Override
@@ -32,8 +32,8 @@ public class BodegaServiceImp implements BodegaService {
     }
 
     @Override
-    public void update(Bodega bodega) {
-        bodegaRepository.save(bodega);
+    public Bodega update(Bodega bodega) {
+        return bodegaRepository.save(bodega);
     }
 
     @Override

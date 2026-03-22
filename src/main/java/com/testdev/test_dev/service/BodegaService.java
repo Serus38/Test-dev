@@ -10,9 +10,9 @@ import com.testdev.test_dev.model.Bodega;
 public interface BodegaService {
 
     List<Bodega> getAllBodegas();
-    void save(Bodega bodega);
+    Bodega save(Bodega bodega);
     void delete(long id);
-    void update(Bodega bodega);
+    Bodega update(Bodega bodega);
     Bodega getBodegaById(long id);
 
 }

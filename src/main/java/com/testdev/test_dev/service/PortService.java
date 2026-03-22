@@ -8,9 +8,9 @@ import com.testdev.test_dev.model.Port;
 public interface PortService {
 
     List<Port> getAllPorts();
-    void save(Port port);
+    Port save(Port port);
     void delete(Long id);
-    void update(Port port);
+    Port update(Port port);
     Port getPortById(long id);
 
 }

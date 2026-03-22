@@ -10,9 +10,9 @@ import com.testdev.test_dev.model.TerrestrialShipment;
 public interface TerrestrialShipmentService {
 
     List<TerrestrialShipment> getAllTerrestrialShipments();
-    void save(TerrestrialShipment terrestrialShipment);
+    TerrestrialShipment save(TerrestrialShipment terrestrialShipment);
     void delete(Long id);
-    void update(TerrestrialShipment terrestrialShipment);
+    TerrestrialShipment update(TerrestrialShipment terrestrialShipment);
     TerrestrialShipment getTerrestrialShipmentById(long id);
     
 }

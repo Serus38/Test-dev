@@ -12,7 +12,7 @@ public interface ClientService {
     List<Client> getAllClients();
     Client save(Client client);
     void delete(Long id);
-    void update(Client client);
+    Client   update(Client client);
     Client getClientById(long id);
 
 }

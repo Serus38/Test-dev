@@ -22,8 +22,8 @@ public class PortServiceImp implements PortService {
     }
 
     @Override
-    public void save(Port port) {
-        portRepository.save(port);
+    public Port save(Port port) {
+        return portRepository.save(port);
     }
 
     @Override
@@ -32,8 +32,8 @@ public class PortServiceImp implements PortService {
     }
 
     @Override
-    public void update(Port port) {
-        portRepository.save(port);
+    public Port update(Port port) {
+        return portRepository.save(port);
     }
 
     @Override

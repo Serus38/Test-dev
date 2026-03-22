@@ -10,9 +10,9 @@ import com.testdev.test_dev.model.MaritimeShipment;
 public interface MaritimeShipmentService {
 
     List<MaritimeShipment> getAllMaritimeShipments();
-    void save(MaritimeShipment maritimeShipment);
+    MaritimeShipment save(MaritimeShipment maritimeShipment);
     void delete(Long id);
-    void update(MaritimeShipment maritimeShipment);
+    MaritimeShipment update(MaritimeShipment maritimeShipment);
     MaritimeShipment getMaritimeShipmentById(long id);
     
 }

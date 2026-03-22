@@ -2,83 +2,71 @@ package com.testdev.test_dev.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.testdev.test_dev.model.Client;
 import com.testdev.test_dev.service.ClientService;
 
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/client")
 @Tag (name = "Client Controller", description = "Controller for managing clients")
+
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 public class ClientController {
 
-    private final ClientService clientService;
+    @Autowired
+    ClientService clientService;
 
     public ClientController(ClientService clientService) {
         this.clientService = clientService;
     }
 
-    @GetMapping ("/getAll")
-    @Operation(summary = "Get all clients", description = "Returns a list of all clients")
-    public String getAllClients(Model model) {
-        List<Client> clients = clientService.getAllClients();
-        model.addAttribute("clients", clients);
-        return "List of clients: " + clients.toString();
+    @GetMapping("/getAll")
+    @Operation(summary = "Get all clients", description = "Returns a list of all clients with their information")
+    public ResponseEntity<List<Client>> getAllClients() {
+        return ResponseEntity.ok(clientService.getAllClients());
     }
 
     @GetMapping("/get/{id}")
     @Operation(summary = "Get client by ID", description = "Returns a client by their ID")
-    public String getClientById(@PathVariable Long id, Model model) {
-        Client client = clientService.getClientById(id);
-        model.addAttribute("client", client);
-        return "Client details: " + client.toString();
-    }
-
-    @GetMapping("/new")
-    @Operation(summary = "New client", description = "Creates a new client")
-    public String newClient(Model model) {
-        model.addAttribute("client", new Client());
-        return "clients/newclient";
+    public ResponseEntity<Client> getClientById(@PathVariable Long id) {
+        return ResponseEntity.ok(clientService.getClientById(id));
     }
     
 
     @PostMapping("/save")
     @Operation(summary = "Save client", description = "Saves a new client")
-    public String saveClient(@ModelAttribute Client client,
-                            BindingResult result, RedirectAttributes redirectAttrs) {
-        if (result.hasErrors()){
-            return "clients/newclient";
-        }
-        clientService.save(client);
-        redirectAttrs.addFlashAttribute("mensaje", "Register saved");
-        return "redirect:/client/getAll";
+    public ResponseEntity<Client> saveClient(@Valid @RequestBody Client client) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(clientService.save(client));
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     @Operation(summary = "Delete client", description = "Deletes a client by their ID")
-    public String deleteClient(@PathVariable Long id, RedirectAttributes redirectAttrs) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         clientService.delete(id);
-        redirectAttrs.addFlashAttribute("mensaje", "Register deleted");
-        return "redirect:/client/getAll";
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/edit/{id}")
+    @PutMapping("/edit/{id}")
     @Operation(summary = "Edit client", description = "Edits a client by their ID")
-    public String editClient(@PathVariable Long id, Model model) {
-        Client client = clientService.getClientById(id);
-        model.addAttribute("client", client);
-        return "clients/editclient";
+    public ResponseEntity<Void> update(@PathVariable Long id, @Valid @RequestBody Client client) {
+        client.setId(id);
+        clientService.update(client);
+        return ResponseEntity.noContent().build();
     }    
 }

@@ -1,21 +1,24 @@
 package com.testdev.test_dev.controller;
 
 import java.util.List;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.testdev.test_dev.model.Port;
 import com.testdev.test_dev.service.PortService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/port")
@@ -30,45 +33,34 @@ public class PortController {
 
     @GetMapping ("/getAll")
     @Operation(summary = "Get all ports", description = "Returns a list of all ports")
-    public String getAllPorts(Model model) {
-        List<Port> ports = portService.getAllPorts();
-        model.addAttribute("ports", ports);
-        return "List of ports: " + ports.toString();
+    public ResponseEntity<List<Port>> getAllPorts() {
+        return ResponseEntity.ok(portService.getAllPorts());
     }
 
-    @GetMapping("/new")
-    @Operation(summary = "New port", description = "Creates a new port")
-    public String newPort(Model model) {
-        model.addAttribute("port", new Port());
-        return "ports/newport";
+    @GetMapping("/get/{id}")
+    @Operation(summary = "Get port by ID", description = "Returns a port by ID")
+    public ResponseEntity<Port> getPortById(@PathVariable Long id) {
+        return ResponseEntity.ok(portService.getPortById(id));
     }
     
 
     @PostMapping("/save")
     @Operation(summary = "Save port", description = "Saves a new port")
-    public String savePort(@ModelAttribute Port port,
-                            BindingResult result, RedirectAttributes redirectAttrs) {
-        if (result.hasErrors()){
-            return "ports/newport";
-        }
-        portService.save(port);
-        redirectAttrs.addFlashAttribute("mensaje", "Register saved");
-        return "redirect:/port/getAll";
+    public ResponseEntity<Port> savePort(@Valid @RequestBody Port port) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(portService.save(port));
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     @Operation(summary = "Delete port", description = "Deletes a port by their ID")
-    public String deletePort(@PathVariable Long id, RedirectAttributes redirectAttrs) {
+    public ResponseEntity<Void> deletePort(@PathVariable Long id) {
         portService.delete(id);
-        redirectAttrs.addFlashAttribute("mensaje", "Register deleted");
-        return "redirect:/port/getAll";
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/edit/{id}")
+    @PutMapping("/edit/{id}")
     @Operation(summary = "Edit port", description = "Edits a port by their ID")
-    public String editPort(@PathVariable Long id, Model model) {
-        Port port = portService.getPortById(id);
-        model.addAttribute("port", port);
-        return "ports/editport";
+    public ResponseEntity<Port> editPort(@PathVariable Long id, @Valid @RequestBody Port port) {
+        port.setId(id);
+        return ResponseEntity.ok(portService.update(port));
     }    
 }

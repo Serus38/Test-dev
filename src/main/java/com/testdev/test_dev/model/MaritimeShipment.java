@@ -59,7 +59,7 @@ public class MaritimeShipment {
     private BigDecimal totalCost;
 
     @Pattern(regexp = "^[A-Za-z0-9]{10}$", message = "El número de guía debe ser alfanumérico de 10 caracteres")
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(unique = true, length = 10)
     private String guideNumber;
 
     @Enumerated(EnumType.STRING)
@@ -68,8 +68,6 @@ public class MaritimeShipment {
 
     // Número de flota (3 letras, 4 números, 1 letra) Ej: ABC1234D
     @Pattern(regexp = "^[A-Z]{3}\\d{4}[A-Z]$", message = "El número de flota debe tener formato: 3 letras, 4 números y 1 letra (ej: ABC1234D)")
-    @Column(nullable = false, length = 8)
-    private String fleetNumber;
 
     public Long getId() {
         return id;
@@ -182,13 +180,4 @@ public class MaritimeShipment {
     public void setStatus(ShipmentStatus status) {
         this.status = status;
     }
-
-    public String getFleetNumber() {
-        return fleetNumber;
-    }
-
-    public void setFleetNumber(String fleetNumber) {
-        this.fleetNumber = fleetNumber;
-    }
-
 }

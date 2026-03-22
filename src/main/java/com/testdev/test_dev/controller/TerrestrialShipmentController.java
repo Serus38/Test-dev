@@ -2,22 +2,23 @@ package com.testdev.test_dev.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.testdev.test_dev.model.TerrestrialShipment;
 import com.testdev.test_dev.service.TerrestrialShipmentService;
 
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/terrestrial-shipment")
@@ -32,46 +33,36 @@ public class TerrestrialShipmentController {
 
     @GetMapping ("/getAll")
     @Operation(summary = "Get all terrestrial shipments", description = "Returns a list of all terrestrial shipments")
-    public String getAllTerrestrialShipments(Model model) {
-        List<TerrestrialShipment> terrestrialShipments = terrestrialShipmentService.getAllTerrestrialShipments();
-        model.addAttribute("terrestrialShipments", terrestrialShipments);
-        return "List of terrestrial shipments: " + terrestrialShipments.toString();
+    public ResponseEntity<List<TerrestrialShipment>> getAllTerrestrialShipments() {
+        return ResponseEntity.ok(terrestrialShipmentService.getAllTerrestrialShipments());
     }
 
-    @GetMapping("/new")
-    @Operation(summary = "New terrestrial shipment", description = "Creates a new terrestrial shipment")
-    public String newTerrestrialShipment(Model model) {
-        model.addAttribute("terrestrialShipment", new TerrestrialShipment());
-        return "terrestrial-shipments/newterrestrialshipment";
+    @GetMapping("/get/{id}")
+    @Operation(summary = "Get terrestrial shipment by ID", description = "Returns a terrestrial shipment by ID")
+    public ResponseEntity<TerrestrialShipment> getTerrestrialShipmentById(@PathVariable Long id) {
+        return ResponseEntity.ok(terrestrialShipmentService.getTerrestrialShipmentById(id));
     }
     
 
     @PostMapping("/save")
     @Operation(summary = "Save terrestrial shipment", description = "Saves a new terrestrial shipment")
-    public String saveTerrestrialShipment(@ModelAttribute TerrestrialShipment terrestrialShipment,
-                            BindingResult result, RedirectAttributes redirectAttrs) {
-        if (result.hasErrors()){
-            return "terrestrial-shipments/newterrestrialshipment";
-        }
-        terrestrialShipmentService.save(terrestrialShipment);
-        redirectAttrs.addFlashAttribute("mensaje", "Register saved");
-        return "redirect:/terrestrial-shipment/getAll";
+    public ResponseEntity<TerrestrialShipment> saveTerrestrialShipment(@Valid @RequestBody TerrestrialShipment terrestrialShipment) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(terrestrialShipmentService.save(terrestrialShipment));
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     @Operation(summary = "Delete terrestrial shipment", description = "Deletes a terrestrial shipment by their ID")
-    public String deleteTerrestrialShipment(@PathVariable Long id, RedirectAttributes redirectAttrs) {
+    public ResponseEntity<Void> deleteTerrestrialShipment(@PathVariable Long id) {
         terrestrialShipmentService.delete(id);
-        redirectAttrs.addFlashAttribute("mensaje", "Register deleted");
-        return "redirect:/terrestrial-shipment/getAll";
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/edit/{id}")
+    @PutMapping("/edit/{id}")
     @Operation(summary = "Edit terrestrial shipment", description = "Edits a terrestrial shipment by their ID")
-    public String editTerrestrialShipment(@PathVariable Long id, Model model) {
-        TerrestrialShipment terrestrialShipment = terrestrialShipmentService.getTerrestrialShipmentById(id);
-        model.addAttribute("terrestrialShipment", terrestrialShipment);
-        return "terrestrial-shipments/editterrestrialshipment";
+    public ResponseEntity<TerrestrialShipment> editTerrestrialShipment(@PathVariable Long id,
+                                                                       @Valid @RequestBody TerrestrialShipment terrestrialShipment) {
+        terrestrialShipment.setId(id);
+        return ResponseEntity.ok(terrestrialShipmentService.update(terrestrialShipment));
     }    
 }
 

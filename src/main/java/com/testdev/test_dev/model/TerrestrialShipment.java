@@ -59,7 +59,7 @@ public class TerrestrialShipment {
     private BigDecimal totalCost;
 
     @Pattern(regexp = "^[A-Za-z0-9]{10}$", message = "El número de guía debe ser alfanumérico de 10 caracteres")
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(unique = true, length = 10)
     private String guideNumber;
 
     @Pattern(regexp = "^[A-Za-z0-9]{7}$", message = "La placa del vehículo debe ser alfanumérica de 7 caracteres")
@@ -164,6 +164,10 @@ public class TerrestrialShipment {
 
     public void setTotalCost(BigDecimal totalCost) {
         this.totalCost = totalCost;
+    }
+
+    public String getGuideNumber() {
+        return guideNumber;
     }
 
     public void setGuideNumber(String guideNumber) {

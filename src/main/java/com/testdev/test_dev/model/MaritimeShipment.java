@@ -26,24 +26,14 @@ public class MaritimeShipment {
     @Column(nullable = false)
     private String productType;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false)
     private BigDecimal quantity;
-
-    @Column(nullable = false)
-    private String origin;
-
-    @Column(nullable = false)
-    private String destination;
 
     @Column(nullable = false)
     private String registrationDate;
 
     @Column(nullable = false)
     private String deliveryDate;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "port_id", nullable = false)
-    private Port port;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)
@@ -58,6 +48,14 @@ public class MaritimeShipment {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal totalCost;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "origin_port_id")
+    private Port originPort;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "destination_port_id")
+    private Port destinationPort;
+
     @Pattern(regexp = "^[A-Za-z0-9]{10}$", message = "El número de guía debe ser alfanumérico de 10 caracteres")
     @Column(unique = true, length = 10)
     private String guideNumber;
@@ -68,6 +66,9 @@ public class MaritimeShipment {
 
     // Número de flota (3 letras, 4 números, 1 letra) Ej: ABC1234D
     @Pattern(regexp = "^[A-Z]{3}\\d{4}[A-Z]$", message = "El número de flota debe tener formato: 3 letras, 4 números y 1 letra (ej: ABC1234D)")
+    @Column(nullable = false, length = 8)
+    private String fleetNumber;    
+
 
     public Long getId() {
         return id;
@@ -93,22 +94,6 @@ public class MaritimeShipment {
         this.quantity = quantity;
     }
 
-    public String getOrigin() {
-        return origin;
-    }
-
-    public void setOrigin(String origin) {
-        this.origin = origin;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
-
     public String getRegistrationDate() {
         return registrationDate;
     }
@@ -123,14 +108,6 @@ public class MaritimeShipment {
 
     public void setDeliveryDate(String deliveryDate) {
         this.deliveryDate = deliveryDate;
-    }
-
-    public Port getPort() {
-        return port;
-    }
-
-    public void setPort(Port port) {
-        this.port = port;
     }
 
     public Client getClient() {
@@ -165,6 +142,22 @@ public class MaritimeShipment {
         this.totalCost = totalCost;
     }
 
+    public Port getOriginPort() {
+        return originPort;
+    }
+
+    public void setOriginPort(Port originPort) {
+        this.originPort = originPort;
+    }
+
+    public Port getDestinationPort() {
+        return destinationPort;
+    }
+
+    public void setDestinationPort(Port destinationPort) {
+        this.destinationPort = destinationPort;
+    }
+    
     public String getGuideNumber() {
         return guideNumber;
     }
@@ -179,5 +172,13 @@ public class MaritimeShipment {
 
     public void setStatus(ShipmentStatus status) {
         this.status = status;
+    }
+
+    public String getFleetNumber() {
+        return fleetNumber;
+    }
+
+    public void setFleetNumber(String fleetNumber) {
+        this.fleetNumber = fleetNumber;
     }
 }

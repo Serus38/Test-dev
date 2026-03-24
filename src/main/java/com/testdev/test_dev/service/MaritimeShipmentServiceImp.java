@@ -1,5 +1,7 @@
 package com.testdev.test_dev.service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -15,6 +17,10 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
 
     private static final String GUIDE_PREFIX = "MAR";
     private static final int GUIDE_NUMBER_LENGTH = 7;
+    private static final BigDecimal DISCOUNT_STEP_PERCENT = new BigDecimal("5");
+    private static final BigDecimal PRODUCTS_PER_DISCOUNT_STEP = new BigDecimal("10");
+    private static final BigDecimal MAX_DISCOUNT_PERCENT = new BigDecimal("50");
+    private static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
 
     private final MaritimeShipmentRepository maritimeShipmentRepository;
 
@@ -30,6 +36,7 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
     @Override
     @Transactional
     public MaritimeShipment save(MaritimeShipment maritimeShipment) {
+        applyAutomaticDiscountAndTotal(maritimeShipment);
         maritimeShipment.setGuideNumber(generateTemporaryGuideNumber());
         MaritimeShipment savedShipment = maritimeShipmentRepository.save(maritimeShipment);
         savedShipment.setGuideNumber(formatGuideNumber(savedShipment.getId()));
@@ -45,6 +52,7 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
     @Override
     @Transactional
     public MaritimeShipment update(MaritimeShipment maritimeShipment) {
+        applyAutomaticDiscountAndTotal(maritimeShipment);
         MaritimeShipment existingShipment = maritimeShipmentRepository.findById(maritimeShipment.getId()).orElse(null);
         if (existingShipment != null && (maritimeShipment.getGuideNumber() == null || maritimeShipment.getGuideNumber().isBlank())) {
             maritimeShipment.setGuideNumber(existingShipment.getGuideNumber());
@@ -66,5 +74,25 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
     private String generateTemporaryGuideNumber() {
         String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 7).toUpperCase(Locale.ROOT);
         return "TMP" + suffix;
+    }
+
+    // Método para aplicar el descuento automático y calcular el costo total basado en la cantidad y el costo de envío
+    private void applyAutomaticDiscountAndTotal(MaritimeShipment maritimeShipment) {
+        BigDecimal quantity = maritimeShipment.getQuantity();
+        BigDecimal shippingCost = maritimeShipment.getShippingCost();
+
+        int discountSteps = quantity.divideToIntegralValue(PRODUCTS_PER_DISCOUNT_STEP).intValue();
+        BigDecimal calculatedDiscountRate = DISCOUNT_STEP_PERCENT.multiply(BigDecimal.valueOf(discountSteps));
+        if (calculatedDiscountRate.compareTo(MAX_DISCOUNT_PERCENT) > 0) {
+            calculatedDiscountRate = MAX_DISCOUNT_PERCENT;
+        }
+
+        BigDecimal discountAmount = shippingCost
+                .multiply(calculatedDiscountRate)
+                .divide(ONE_HUNDRED, 2, RoundingMode.HALF_UP);
+        BigDecimal totalCost = shippingCost.subtract(discountAmount).setScale(2, RoundingMode.HALF_UP);
+
+        maritimeShipment.setDiscountRate(calculatedDiscountRate.setScale(2, RoundingMode.HALF_UP));
+        maritimeShipment.setTotalCost(totalCost);
     }
 }

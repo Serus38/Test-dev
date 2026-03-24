@@ -29,21 +29,27 @@ public class TerrestrialShipment {
     @Column(nullable = false)
     private Double quantity;
 
-    @Column(nullable = false)
-    private String origin;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "origin_bodega_id")
+    private Bodega originBodega;
 
-    @Column(nullable = false)
-    private String destination;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "destination_bodega_id")
+    private Bodega destinationBodega;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "origin_port_id")
+    private Port originPort;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "destination_port_id")
+    private Port destinationPort;
 
     @Column(nullable = false)
     private String registrationDate;
 
     @Column(nullable = false)
     private String deliveryDate;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "bodega_id", nullable = false)
-    private Bodega bodega;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)
@@ -94,22 +100,6 @@ public class TerrestrialShipment {
         this.quantity = quantity;
     }
 
-    public String getOrigin() {
-        return origin;
-    }
-
-    public void setOrigin(String origin) {
-        this.origin = origin;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
-
     public String getRegistrationDate() {
         return registrationDate;
     }
@@ -126,13 +116,39 @@ public class TerrestrialShipment {
         this.deliveryDate = deliveryDate;
     }
 
-    public Bodega getBodega() {
-        return bodega;
+
+    public Bodega getOriginBodega() {
+        return originBodega;
     }
 
-    public void setBodega(Bodega bodega) {
-        this.bodega = bodega;
+    public void setOriginBodega(Bodega originBodega) {
+        this.originBodega = originBodega;
     }
+
+    public Bodega getDestinationBodega() {
+        return destinationBodega;
+    }
+
+    public void setDestinationBodega(Bodega destinationBodega) {
+        this.destinationBodega = destinationBodega;
+    }
+
+    public Port getOriginPort() {
+        return originPort;
+    }
+
+    public void setOriginPort(Port originPort) {
+        this.originPort = originPort;
+    }
+
+    public Port getDestinationPort() {
+        return destinationPort;
+    }
+
+    public void setDestinationPort(Port destinationPort) {
+        this.destinationPort = destinationPort;
+    }
+
 
     public Client getClient() {
         return client;

@@ -24,6 +24,10 @@ public class Port {
     @Column(nullable = false)
     private String country;
 
+    @NotBlank
+    @Column(nullable = false)
+    private String city;
+
     public Long getId() {
         return id;
     }
@@ -47,6 +51,13 @@ public class Port {
     public void setCountry(String country) {
         this.country = country;
     }
-    
-    
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
 }

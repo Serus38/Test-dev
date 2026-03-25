@@ -40,6 +40,7 @@ public class TerrestrialShipmentServiceImp implements TerrestrialShipmentService
     @Override
     @Transactional
     public TerrestrialShipment save(TerrestrialShipment terrestrialShipment) {
+        validateSingleOriginAndDestination(terrestrialShipment);
         applyAutomaticDiscountAndTotal(terrestrialShipment);
         terrestrialShipment.setGuideNumber(generateTemporaryGuideNumber());
         TerrestrialShipment savedShipment = terrestrialShipmentRepository.save(terrestrialShipment);
@@ -57,6 +58,7 @@ public class TerrestrialShipmentServiceImp implements TerrestrialShipmentService
     @Override
     @Transactional
     public TerrestrialShipment update(TerrestrialShipment terrestrialShipment) {
+        validateSingleOriginAndDestination(terrestrialShipment);
         applyAutomaticDiscountAndTotal(terrestrialShipment);
         TerrestrialShipment existingShipment = terrestrialShipmentRepository.findById(terrestrialShipment.getId()).orElse(null);
         if (existingShipment != null && (terrestrialShipment.getGuideNumber() == null || terrestrialShipment.getGuideNumber().isBlank())) {
@@ -100,5 +102,42 @@ public class TerrestrialShipmentServiceImp implements TerrestrialShipmentService
 
         terrestrialShipment.setDiscountRate(calculatedDiscountRate.setScale(2, RoundingMode.HALF_UP));
         terrestrialShipment.setTotalCost(totalCost);
+    }
+
+
+    // Validación para asegurar que solo se proporcione un origen y un destino, y que no sean iguales
+    private void validateSingleOriginAndDestination(TerrestrialShipment terrestrialShipment) {
+        int originCount = 0;
+        if (terrestrialShipment.getOriginBodega() != null) {
+            originCount++;
+        }
+        if (terrestrialShipment.getOriginPort() != null) {
+            originCount++;
+        }
+
+        int destinationCount = 0;
+        if (terrestrialShipment.getDestinationBodega() != null) {
+            destinationCount++;
+        }
+        if (terrestrialShipment.getDestinationPort() != null) {
+            destinationCount++;
+        }
+
+        if (originCount != 1 || destinationCount != 1) {
+            throw new IllegalArgumentException("El envio terrestre debe tener exactamente un origen y un destino");
+        }
+
+        // Validación adicional para asegurar que el origen y el destino no sean el mismo, considerando tanto bodegas como puertos
+        Long originBodegaId = terrestrialShipment.getOriginBodega() != null ? terrestrialShipment.getOriginBodega().getId() : null;
+        Long destinationBodegaId = terrestrialShipment.getDestinationBodega() != null ? terrestrialShipment.getDestinationBodega().getId() : null;
+        if (originBodegaId != null && originBodegaId.equals(destinationBodegaId)) {
+            throw new IllegalArgumentException("El origen y el destino no pueden ser la misma bodega");
+        }
+
+        Long originPortId = terrestrialShipment.getOriginPort() != null ? terrestrialShipment.getOriginPort().getId() : null;
+        Long destinationPortId = terrestrialShipment.getDestinationPort() != null ? terrestrialShipment.getDestinationPort().getId() : null;
+        if (originPortId != null && originPortId.equals(destinationPortId)) {
+            throw new IllegalArgumentException("El origen y el destino no pueden ser el mismo puerto");
+        }
     }
 }

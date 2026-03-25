@@ -52,5 +52,15 @@ public class GlobalExceptionHandler {
                 "No se pudo guardar el registro. Verifique unicidad o relaciones.");
         return ResponseEntity.badRequest().body(error);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException ex) {
+        ApiError error = new ApiError(
+                Instant.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage());
+        return ResponseEntity.badRequest().body(error);
+    }
     
 }

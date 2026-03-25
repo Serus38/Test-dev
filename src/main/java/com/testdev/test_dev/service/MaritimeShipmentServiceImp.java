@@ -36,6 +36,7 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
     @Override
     @Transactional
     public MaritimeShipment save(MaritimeShipment maritimeShipment) {
+        validateOriginAndDestination(maritimeShipment);
         applyAutomaticDiscountAndTotal(maritimeShipment);
         maritimeShipment.setGuideNumber(generateTemporaryGuideNumber());
         MaritimeShipment savedShipment = maritimeShipmentRepository.save(maritimeShipment);
@@ -52,6 +53,7 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
     @Override
     @Transactional
     public MaritimeShipment update(MaritimeShipment maritimeShipment) {
+        validateOriginAndDestination(maritimeShipment);
         applyAutomaticDiscountAndTotal(maritimeShipment);
         MaritimeShipment existingShipment = maritimeShipmentRepository.findById(maritimeShipment.getId()).orElse(null);
         if (existingShipment != null && (maritimeShipment.getGuideNumber() == null || maritimeShipment.getGuideNumber().isBlank())) {
@@ -94,5 +96,19 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
 
         maritimeShipment.setDiscountRate(calculatedDiscountRate.setScale(2, RoundingMode.HALF_UP));
         maritimeShipment.setTotalCost(totalCost);
+    }
+
+    // Validación para asegurar que el envío marítimo tenga un origen y un destino, y que no sean el mismo puerto
+    private void validateOriginAndDestination(MaritimeShipment maritimeShipment) {
+        if (maritimeShipment.getOriginPort() == null || maritimeShipment.getDestinationPort() == null) {
+            throw new IllegalArgumentException("El envio maritimo debe tener un origen y un destino");
+        }
+
+        Long originId = maritimeShipment.getOriginPort().getId();
+        Long destinationId = maritimeShipment.getDestinationPort().getId();
+
+        if (originId != null && originId.equals(destinationId)) {
+            throw new IllegalArgumentException("El origen y el destino no pueden ser el mismo puerto");
+        }
     }
 }

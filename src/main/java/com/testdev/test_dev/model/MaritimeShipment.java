@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 @Entity
@@ -49,11 +50,13 @@ public class MaritimeShipment {
     private BigDecimal totalCost;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "origin_port_id")
+    @JoinColumn(name = "origin_port_id", nullable = false)
+    @NotNull(message = "El origen es obligatorio")
     private Port originPort;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "destination_port_id")
+    @JoinColumn(name = "destination_port_id", nullable = false)
+    @NotNull(message = "El destino es obligatorio")
     private Port destinationPort;
 
     @Pattern(regexp = "^[A-Za-z0-9]{10}$", message = "El número de guía debe ser alfanumérico de 10 caracteres")

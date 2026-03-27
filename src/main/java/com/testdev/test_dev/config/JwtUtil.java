@@ -13,7 +13,7 @@ import javax.crypto.SecretKey;
 @Component
 public class JwtUtil {
     
-    @Value("${jwt.secret:mySecretKeyForJWTTokenGenerationAndValidation123456789}")
+    @Value("${jwt.secret}")
     private String secretKey;
     
     @Value("${jwt.expiration:86400000}")

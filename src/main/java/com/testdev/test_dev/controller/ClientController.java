@@ -26,7 +26,10 @@ import jakarta.validation.Valid;
 @RequestMapping("/client")
 @Tag (name = "Client Controller", description = "Controller for managing clients")
 
-@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
+@CrossOrigin(origins = {
+    "http://localhost:4200",
+    "https://test-dev-front-seven.vercel.app"
+}, allowedHeaders = "*")
 public class ClientController {
 
     // Servicio de negocio para operaciones CRUD de clientes.

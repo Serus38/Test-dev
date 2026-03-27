@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @CrossOrigin(origins = {
     "http://localhost:4200",
-    "http://localhost:8081",
-    "https://test-dev-front-seven.vercel.app"
+    "http://localhost:8081"
 })
 public class AuthController {
 

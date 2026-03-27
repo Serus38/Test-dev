@@ -2,7 +2,6 @@ package com.testdev.test_dev;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 @SpringBootApplication
 public class TestDevApplication {
 
@@ -13,5 +12,4 @@ public class TestDevApplication {
 		System.out.println("Enlace: http://localhost:" + port + "/");
 
 	}
-
 }

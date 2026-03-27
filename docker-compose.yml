@@ -1,0 +1,52 @@
+services:
+  mysql:
+    profiles: ["docker-db"]
+    image: mysql:8.4
+    container_name: testdev-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: test_dev
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: testdev-backend
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      PORT: "8081"
+      DB_URL: "jdbc:mysql://host.docker.internal:3306/test_dev"
+      DB_USERNAME: "root"
+      DB_PASSWORD: "kaneki2238"
+      SECURITY_USER: "admin"
+      SECURITY_PASSWORD: "123456"
+      JWT_SECRET: "mySecretKeyForJWTTokenGenerationAndValidation123456789"
+      JWT_EXPIRATION: "86400000"
+    ports:
+      - "8081:8081"
+
+  frontend:
+    build:
+      context: ../test-dev-front
+      dockerfile: Dockerfile
+    container_name: testdev-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+
+volumes:
+  mysql_data:

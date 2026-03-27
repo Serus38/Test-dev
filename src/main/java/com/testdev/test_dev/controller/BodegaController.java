@@ -27,29 +27,44 @@ public class BodegaController {
 
     private final BodegaService bodegaService;
 
+    /**
+     * Constructor con inyeccion de dependencias para operaciones de bodega.
+     */
     public BodegaController(BodegaService bodegaService) {
         this.bodegaService = bodegaService;
     }
     
 
+    /**
+     * Devuelve todas las bodegas registradas.
+     */
     @GetMapping("/getAll")
     @Operation(summary = "Get all bodegas", description = "Returns a list of all bodegas")
     public ResponseEntity<List<Bodega>> getAllBodegas() {
         return ResponseEntity.ok(bodegaService.getAllBodegas());
     }
 
+    /**
+     * Obtiene una bodega por su id.
+     */
     @GetMapping("/get/{id}")
     @Operation(summary = "Get bodega by ID", description = "Returns a bodega by ID")
     public ResponseEntity<Bodega> getBodegaById(@PathVariable Long id) {
         return ResponseEntity.ok(bodegaService.getBodegaById(id));
     }
 
+    /**
+     * Crea una nueva bodega.
+     */
     @PostMapping("/save")
     @Operation(summary = "Save bodega", description = "Saves a new bodega")
     public ResponseEntity<Bodega> saveBodega(@Valid @RequestBody Bodega bodega) {
         return ResponseEntity.status(HttpStatus.CREATED).body(bodegaService.save(bodega));
     }
 
+    /**
+     * Elimina una bodega existente por id.
+     */
     @DeleteMapping("/delete/{id}")
     @Operation(summary = "Delete bodega", description = "Deletes a bodega by ID")
     public ResponseEntity<Void> deleteBodega(@PathVariable Long id) {
@@ -57,6 +72,9 @@ public class BodegaController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Edita una bodega reutilizando el id que llega por URL.
+     */
     @PutMapping("/edit/{id}")
     @Operation(summary = "Edit bodega", description = "Edits a bodega by ID")
     public ResponseEntity<Bodega> editBodega(@PathVariable Long id, @Valid @RequestBody Bodega bodega) {

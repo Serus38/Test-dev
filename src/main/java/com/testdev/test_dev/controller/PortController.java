@@ -27,16 +27,25 @@ public class PortController {
 
     private final PortService portService;
 
+    /**
+     * Constructor con inyeccion del servicio de puertos.
+     */
     public PortController(PortService portService) {
         this.portService = portService;
     }
 
+    /**
+     * Lista todos los puertos.
+     */
     @GetMapping ("/getAll")
     @Operation(summary = "Get all ports", description = "Returns a list of all ports")
     public ResponseEntity<List<Port>> getAllPorts() {
         return ResponseEntity.ok(portService.getAllPorts());
     }
 
+    /**
+     * Obtiene un puerto por id.
+     */
     @GetMapping("/get/{id}")
     @Operation(summary = "Get port by ID", description = "Returns a port by ID")
     public ResponseEntity<Port> getPortById(@PathVariable Long id) {
@@ -44,12 +53,18 @@ public class PortController {
     }
     
 
+    /**
+     * Crea un puerto nuevo.
+     */
     @PostMapping("/save")
     @Operation(summary = "Save port", description = "Saves a new port")
     public ResponseEntity<Port> savePort(@Valid @RequestBody Port port) {
         return ResponseEntity.status(HttpStatus.CREATED).body(portService.save(port));
     }
 
+    /**
+     * Elimina un puerto por id.
+     */
     @DeleteMapping("/delete/{id}")
     @Operation(summary = "Delete port", description = "Deletes a port by their ID")
     public ResponseEntity<Void> deletePort(@PathVariable Long id) {
@@ -57,6 +72,9 @@ public class PortController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Actualiza un puerto existente por id.
+     */
     @PutMapping("/edit/{id}")
     @Operation(summary = "Edit port", description = "Edits a port by their ID")
     public ResponseEntity<Port> editPort(@PathVariable Long id, @Valid @RequestBody Port port) {

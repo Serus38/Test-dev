@@ -29,19 +29,29 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*")
 public class ClientController {
 
+    // Servicio de negocio para operaciones CRUD de clientes.
     @Autowired
     ClientService clientService;
 
+    /**
+     * Constructor para inyeccion explicita del servicio.
+     */
     public ClientController(ClientService clientService) {
         this.clientService = clientService;
     }
 
+    /**
+     * Obtiene la lista completa de clientes.
+     */
     @GetMapping("/getAll")
     @Operation(summary = "Get all clients", description = "Returns a list of all clients with their information")
     public ResponseEntity<List<Client>> getAllClients() {
         return ResponseEntity.ok(clientService.getAllClients());
     }
 
+    /**
+     * Consulta un cliente puntual por identificador.
+     */
     @GetMapping("/get/{id}")
     @Operation(summary = "Get client by ID", description = "Returns a client by their ID")
     public ResponseEntity<Client> getClientById(@PathVariable Long id) {
@@ -49,12 +59,18 @@ public class ClientController {
     }
     
 
+    /**
+     * Crea un cliente validando previamente el cuerpo de la solicitud.
+     */
     @PostMapping("/save")
     @Operation(summary = "Save client", description = "Saves a new client")
     public ResponseEntity<Client> saveClient(@Valid @RequestBody Client client) {
         return ResponseEntity.status(HttpStatus.CREATED).body(clientService.save(client));
     }
 
+    /**
+     * Elimina un cliente por id.
+     */
     @DeleteMapping("/delete/{id}")
     @Operation(summary = "Delete client", description = "Deletes a client by their ID")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
@@ -62,6 +78,9 @@ public class ClientController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Actualiza un cliente existente usando el id de la ruta.
+     */
     @PutMapping("/edit/{id}")
     @Operation(summary = "Edit client", description = "Edits a client by their ID")
     public ResponseEntity<Void> update(@PathVariable Long id, @Valid @RequestBody Client client) {

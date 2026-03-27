@@ -2,6 +2,9 @@ package com.testdev.test_dev.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -9,6 +12,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.testdev.test_dev.model.ShipmentStatus;
 import com.testdev.test_dev.model.TerrestrialShipment;
 import com.testdev.test_dev.repository.TerrestrialShipmentRepository;
 
@@ -23,31 +27,60 @@ public class TerrestrialShipmentServiceImp implements TerrestrialShipmentService
     private static final BigDecimal PRODUCTS_PER_DISCOUNT_STEP = new BigDecimal("10");
     private static final BigDecimal MAX_DISCOUNT_PERCENT = new BigDecimal("50");
     private static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
+    private static final DateTimeFormatter[] SUPPORTED_DATE_FORMATS = new DateTimeFormatter[] {
+            DateTimeFormatter.ISO_LOCAL_DATE,
+            DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    };
 
     private final TerrestrialShipmentRepository terrestrialShipmentRepository;
 
+    /**
+     * Constructor con inyeccion del repositorio de envios terrestres.
+     */
     public TerrestrialShipmentServiceImp(TerrestrialShipmentRepository terrestrialShipmentRepository) {
         this.terrestrialShipmentRepository = terrestrialShipmentRepository;
     }
 
+
+    // Al obtener todos los envíos, también verificamos si alguno debe actualizar su estado a retrasado antes de devolver la lista
+    /**
+     * Lista envios y sincroniza estado automaticamente segun fecha de entrega.
+     */
     @Override
     public List<TerrestrialShipment> getAllTerrestrialShipments() {
-        return terrestrialShipmentRepository.findAll();
+        List<TerrestrialShipment> shipments = terrestrialShipmentRepository.findAll();
+        boolean hasChanges = false;
+        for (TerrestrialShipment shipment : shipments) {
+            hasChanges |= applyAutomaticStatusIfNecessary(shipment);
+        }
+
+        if (hasChanges) {
+            terrestrialShipmentRepository.saveAll(shipments);
+        }
+
+        return shipments;
     }
 
 
     // Guardamos el envío con un número de guía temporal, luego actualizamos con el número de guía definitivo basado en el ID generado
+    /**
+     * Guarda un envio aplicando validaciones, descuento y numero de guia final.
+     */
     @Override
     @Transactional
     public TerrestrialShipment save(TerrestrialShipment terrestrialShipment) {
         validateSingleOriginAndDestination(terrestrialShipment);
         applyAutomaticDiscountAndTotal(terrestrialShipment);
+        applyAutomaticStatusIfNecessary(terrestrialShipment);
         terrestrialShipment.setGuideNumber(generateTemporaryGuideNumber());
         TerrestrialShipment savedShipment = terrestrialShipmentRepository.save(terrestrialShipment);
         savedShipment.setGuideNumber(formatGuideNumber(savedShipment.getId()));
         return terrestrialShipmentRepository.save(savedShipment);
     }
 
+    /**
+     * Elimina un envio terrestre por id.
+     */
     @Override
     public void delete(Long id) {
         terrestrialShipmentRepository.deleteById(id);
@@ -55,11 +88,15 @@ public class TerrestrialShipmentServiceImp implements TerrestrialShipmentService
 
 
     // Al actualizar, si el número de guía no se proporciona, mantenemos el existente para evitar sobrescribirlo con un valor nulo o vacío
+    /**
+     * Actualiza envio terrestre preservando guia existente si no se envia una nueva.
+     */
     @Override
     @Transactional
     public TerrestrialShipment update(TerrestrialShipment terrestrialShipment) {
         validateSingleOriginAndDestination(terrestrialShipment);
         applyAutomaticDiscountAndTotal(terrestrialShipment);
+        applyAutomaticStatusIfNecessary(terrestrialShipment);
         TerrestrialShipment existingShipment = terrestrialShipmentRepository.findById(terrestrialShipment.getId()).orElse(null);
         if (existingShipment != null && (terrestrialShipment.getGuideNumber() == null || terrestrialShipment.getGuideNumber().isBlank())) {
             terrestrialShipment.setGuideNumber(existingShipment.getGuideNumber());
@@ -67,9 +104,71 @@ public class TerrestrialShipmentServiceImp implements TerrestrialShipmentService
         return terrestrialShipmentRepository.save(terrestrialShipment);
     }
 
+
+    // Al obtener por ID, también verificamos si el estado debe actualizarse a retrasado antes de devolver el resultado
+    /**
+     * Obtiene un envio por id y ajusta su estado si corresponde.
+     */
     @Override
     public TerrestrialShipment getTerrestrialShipmentById(long id) {
-        return terrestrialShipmentRepository.findById(id).orElse(null);
+        TerrestrialShipment shipment = terrestrialShipmentRepository.findById(id).orElse(null);
+        if (shipment == null) {
+            return null;
+        }
+
+        if (applyAutomaticStatusIfNecessary(shipment)) {
+            shipment = terrestrialShipmentRepository.save(shipment);
+        }
+
+        return shipment;
+    }
+
+    /**
+     * Reglas de cambio automatico de estado por fecha de entrega.
+     */
+    private boolean applyAutomaticStatusIfNecessary(TerrestrialShipment shipment) {
+        ShipmentStatus currentStatus = shipment.getStatus();
+        if (currentStatus == ShipmentStatus.DELIVERED || currentStatus == ShipmentStatus.CANCELLED) {
+            return false;
+        }
+
+        LocalDate deliveryDate = parseDate(shipment.getDeliveryDate());
+        if (deliveryDate == null) {
+            return false;
+        }
+
+        LocalDate now = LocalDate.now();
+
+        if (now.isAfter(deliveryDate.plusDays(3)) && currentStatus != ShipmentStatus.CANCELLED) {
+            shipment.setStatus(ShipmentStatus.CANCELLED);
+            return true;
+        }
+
+        if (now.isAfter(deliveryDate.plusDays(1)) && currentStatus != ShipmentStatus.DELAYED) {
+            shipment.setStatus(ShipmentStatus.DELAYED);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Parsea fecha con formatos soportados por la API.
+     */
+    private LocalDate parseDate(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        for (DateTimeFormatter formatter : SUPPORTED_DATE_FORMATS) {
+            try {
+                return LocalDate.parse(value, formatter);
+            } catch (DateTimeParseException ignored) {
+                // Try next supported format.
+            }
+        }
+
+        return null;
     }
 
     // Método para formatear el número de guía con el prefijo y ceros a la izquierda

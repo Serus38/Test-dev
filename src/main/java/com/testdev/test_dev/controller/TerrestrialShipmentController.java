@@ -27,16 +27,25 @@ public class TerrestrialShipmentController {
 
     private final TerrestrialShipmentService terrestrialShipmentService;
 
+    /**
+     * Constructor con inyeccion de servicio para envios terrestres.
+     */
     public TerrestrialShipmentController(TerrestrialShipmentService terrestrialShipmentService) {
         this.terrestrialShipmentService = terrestrialShipmentService;
     }
 
+    /**
+     * Obtiene todos los envios terrestres.
+     */
     @GetMapping ("/getAll")
     @Operation(summary = "Get all terrestrial shipments", description = "Returns a list of all terrestrial shipments")
     public ResponseEntity<List<TerrestrialShipment>> getAllTerrestrialShipments() {
         return ResponseEntity.ok(terrestrialShipmentService.getAllTerrestrialShipments());
     }
 
+    /**
+     * Retorna un envio terrestre por id.
+     */
     @GetMapping("/get/{id}")
     @Operation(summary = "Get terrestrial shipment by ID", description = "Returns a terrestrial shipment by ID")
     public ResponseEntity<TerrestrialShipment> getTerrestrialShipmentById(@PathVariable Long id) {
@@ -44,12 +53,18 @@ public class TerrestrialShipmentController {
     }
     
 
+    /**
+     * Crea un nuevo envio terrestre.
+     */
     @PostMapping("/save")
     @Operation(summary = "Save terrestrial shipment", description = "Saves a new terrestrial shipment")
     public ResponseEntity<TerrestrialShipment> saveTerrestrialShipment(@Valid @RequestBody TerrestrialShipment terrestrialShipment) {
         return ResponseEntity.status(HttpStatus.CREATED).body(terrestrialShipmentService.save(terrestrialShipment));
     }
 
+    /**
+     * Elimina un envio terrestre por id.
+     */
     @DeleteMapping("/delete/{id}")
     @Operation(summary = "Delete terrestrial shipment", description = "Deletes a terrestrial shipment by their ID")
     public ResponseEntity<Void> deleteTerrestrialShipment(@PathVariable Long id) {
@@ -57,6 +72,9 @@ public class TerrestrialShipmentController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Actualiza un envio terrestre existente por id.
+     */
     @PutMapping("/edit/{id}")
     @Operation(summary = "Edit terrestrial shipment", description = "Edits a terrestrial shipment by their ID")
     public ResponseEntity<TerrestrialShipment> editTerrestrialShipment(@PathVariable Long id,

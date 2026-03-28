@@ -44,7 +44,7 @@ public class AuthController {
         LoginResponse response = new LoginResponse(
                 token,
                 loginRequest.getUsername(),
-                86400000 // 24 horas en milisegundos
+                3600000 // 1 hora en milisegundos
         );
 
         return ResponseEntity.ok(response);

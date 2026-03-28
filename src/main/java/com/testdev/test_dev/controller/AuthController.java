@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @CrossOrigin(origins = {
     "http://localhost:4200",
-    "http://localhost:8081",
-    "test-dev-production-33f8.up.railway.app"
+    "http://localhost:8081"
 })
 public class AuthController {
 
@@ -44,7 +43,7 @@ public class AuthController {
         LoginResponse response = new LoginResponse(
                 token,
                 loginRequest.getUsername(),
-                86400000 // 24 horas en milisegundos
+                3600000 // 1 hora en milisegundos
         );
 
         return ResponseEntity.ok(response);

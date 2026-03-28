@@ -1,5 +1,6 @@
 package com.testdev.test_dev.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,18 +17,28 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final List<String> allowedOrigins;
 
 	/**
 	 * Inyecta el filtro JWT para anexarlo antes del filtro de autenticacion de Spring.
 	 */
-	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+	public SecurityConfig(
+		JwtAuthenticationFilter jwtAuthenticationFilter,
+		@Value("${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://localhost:8081}") String allowedOriginsConfig
+	) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+		this.allowedOrigins = Arrays.stream(allowedOriginsConfig.split(","))
+			.map(String::trim)
+			.filter(origin -> !origin.isEmpty())
+			.collect(Collectors.toList());
 	}
 
 	/**
@@ -74,10 +85,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList(
-			"http://localhost:4200",
-			"http://localhost:8081"
-		));
+		configuration.setAllowedOrigins(allowedOrigins);
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 		configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
 		configuration.setExposedHeaders(Arrays.asList("Authorization"));

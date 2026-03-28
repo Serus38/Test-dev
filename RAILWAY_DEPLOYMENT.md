@@ -14,15 +14,23 @@ In your Railway project dashboard, add these variables:
 
 ```
 PORT=8081
+# Option A (recommended): define DB_URL directly
+DB_URL=jdbc:mysql://your_host:3306/your_database
+
+# Option B: define by parts (fallback supported by app)
 DB_HOST=your_railway_mysql_host
 DB_PORT=3306
 DB_NAME=your_database_name
+
 DB_USERNAME=your_username
 DB_PASSWORD=your_secure_password_here
 SECURITY_USER=admin
 SECURITY_PASSWORD=your_secure_password_here
 JWT_SECRET=your_very_secure_jwt_secret_minimum_64_characters
 JWT_EXPIRATION=3600000
+
+# Frontend URL(s) allowed by CORS (comma separated)
+CORS_ALLOWED_ORIGINS=https://your-frontend.up.railway.app
 ```
 
 ### 2. Generate Secure Credentials
@@ -42,7 +50,12 @@ openssl rand -base64 64
 
 ### 3. Database Setup
 
-Railway will provide a `DATABASE_URL` automatically if you add a MySQL service.
+For MySQL service variables, this app now supports these Railway-style fallbacks:
+
+- `MYSQLHOST` / `MYSQLPORT` / `MYSQLDATABASE`
+- `MYSQLUSER` / `MYSQLPASSWORD`
+
+If you already provide `DB_URL`, it has priority.
 
 The app automatically creates/updates tables with:
 ```
@@ -112,9 +125,13 @@ docker run --env-file .env -p 8081:8081 test-dev
 - Ensure database host/credentials are correct
 
 ### Database connection fails
-- Verify `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`
+- Verify `DB_URL` (or `DB_HOST`, `DB_PORT`, `DB_NAME`) and `DB_USERNAME`, `DB_PASSWORD`
 - Check that MySQL service is running in Railway
 - Test connection locally first
+
+### Frontend gets CORS errors
+- Set `CORS_ALLOWED_ORIGINS` with your real frontend URL (or multiple URLs separated by commas)
+- Keep protocol included (`https://...`)
 
 ### Port issues
 - Railway assigns port dynamically via `PORT` env var

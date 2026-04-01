@@ -42,8 +42,8 @@ public class ClientServiceImp implements ClientService {
      */
     @Override
     public Client getClientById(long id) {
-        Client client = clientRepository.findById(id).orElseThrow(
-            () -> {
+        Client client = clientRepository.findById(id)
+        .orElseThrow(() -> {
                 throw new ResourceNotFoundException("Client not found with id: " + id);
             }
 

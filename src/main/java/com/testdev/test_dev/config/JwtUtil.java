@@ -1,5 +1,6 @@
 package com.testdev.test_dev.config;
 
+import java.util.Base64;
 import java.util.Date;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,7 +14,7 @@ import javax.crypto.SecretKey;
 @Component
 public class JwtUtil {
     
-    @Value("${jwt.secret:mySecretKeyForJWTTokenGenerationAndValidation123456789}")
+    @Value("${jwt.secret:}")
     private String secretKey;
     
     @Value("${jwt.expiration:86400000}")
@@ -23,7 +24,11 @@ public class JwtUtil {
      * Crea la llave HMAC a partir del secreto configurado.
      */
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(secretKey.getBytes());
+        if (secretKey == null || secretKey.isBlank()) {
+            throw new IllegalStateException("JWT secret no configurado");
+        }
+
+        return Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
     }
 
     /**

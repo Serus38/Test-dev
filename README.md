@@ -41,6 +41,18 @@ Define estas variables antes de iniciar:
 - JWT_SECRET
 - JWT_EXPIRATION
 
+`JWT_SECRET` debe ser una cadena Base64 segura. Puedes generarla con:
+
+```powershell
+./scripts/generate-jwt-secret.ps1
+```
+
+Si prefieres mantenerla en la sesion actual de PowerShell:
+
+```powershell
+$env:JWT_SECRET = ./scripts/generate-jwt-secret.ps1
+```
+
 ## Ejecucion local
 
 ```powershell
@@ -56,6 +68,8 @@ $env:JWT_SECRET='tu_clave_jwt'
 $env:JWT_EXPIRATION='3600000'
 ./mvnw.cmd spring-boot:run
 ```
+
+Para uso permanente en Windows, define las variables en el sistema o en tu perfil de PowerShell. El proyecto no depende de un archivo `.env` para arrancar.
 
 ## Endpoints utiles
 

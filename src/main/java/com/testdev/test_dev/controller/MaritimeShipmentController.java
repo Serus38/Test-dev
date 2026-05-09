@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/maritime-shipment")
-@Tag (name = "Maritime Shipment Controller", description = "Controller for managing maritime shipments")
+@Tag(name = "Maritime Shipment Controller", description = "Controller for managing maritime shipments")
 public class MaritimeShipmentController {
 
     private final MaritimeShipmentService maritimeShipmentService;
@@ -37,7 +37,7 @@ public class MaritimeShipmentController {
     /**
      * Retorna todos los envios maritimos.
      */
-    @GetMapping ("/getAll")
+    @GetMapping("/getAll")
     @Operation(summary = "Get all maritime shipments", description = "Returns a list of all maritime shipments")
     public ResponseEntity<List<MaritimeShipment>> getAllMaritimeShipments() {
         return ResponseEntity.ok(maritimeShipmentService.getAllMaritimeShipments());
@@ -51,14 +51,14 @@ public class MaritimeShipmentController {
     public ResponseEntity<MaritimeShipment> getMaritimeShipmentById(@PathVariable Long id) {
         return ResponseEntity.ok(maritimeShipmentService.getMaritimeShipmentById(id));
     }
-    
 
     /**
      * Registra un envio maritimo nuevo.
      */
     @PostMapping("/save")
     @Operation(summary = "Save maritime shipment", description = "Saves a new maritime shipment")
-    public ResponseEntity<MaritimeShipment> saveMaritimeShipment(@Valid @RequestBody MaritimeShipment maritimeShipment) {
+    public ResponseEntity<MaritimeShipment> saveMaritimeShipment(
+            @Valid @RequestBody MaritimeShipment maritimeShipment) {
         return ResponseEntity.status(HttpStatus.CREATED).body(maritimeShipmentService.save(maritimeShipment));
     }
 
@@ -78,9 +78,8 @@ public class MaritimeShipmentController {
     @PutMapping("/edit/{id}")
     @Operation(summary = "Edit maritime shipment", description = "Edits a maritime shipment by their ID")
     public ResponseEntity<MaritimeShipment> editMaritimeShipment(@PathVariable Long id,
-                                                                 @Valid @RequestBody MaritimeShipment maritimeShipment) {
+            @Valid @RequestBody MaritimeShipment maritimeShipment) {
         maritimeShipment.setId(id);
         return ResponseEntity.ok(maritimeShipmentService.update(maritimeShipment));
-    }    
+    }
 }
-

@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/terrestrial-shipment")
-@Tag (name = "Terrestrial Shipment Controller", description = "Controller for managing terrestrial shipments")
+@Tag(name = "Terrestrial Shipment Controller", description = "Controller for managing terrestrial shipments")
 public class TerrestrialShipmentController {
 
     private final TerrestrialShipmentService terrestrialShipmentService;
@@ -37,7 +37,7 @@ public class TerrestrialShipmentController {
     /**
      * Obtiene todos los envios terrestres.
      */
-    @GetMapping ("/getAll")
+    @GetMapping("/getAll")
     @Operation(summary = "Get all terrestrial shipments", description = "Returns a list of all terrestrial shipments")
     public ResponseEntity<List<TerrestrialShipment>> getAllTerrestrialShipments() {
         return ResponseEntity.ok(terrestrialShipmentService.getAllTerrestrialShipments());
@@ -51,14 +51,14 @@ public class TerrestrialShipmentController {
     public ResponseEntity<TerrestrialShipment> getTerrestrialShipmentById(@PathVariable Long id) {
         return ResponseEntity.ok(terrestrialShipmentService.getTerrestrialShipmentById(id));
     }
-    
 
     /**
      * Crea un nuevo envio terrestre.
      */
     @PostMapping("/save")
     @Operation(summary = "Save terrestrial shipment", description = "Saves a new terrestrial shipment")
-    public ResponseEntity<TerrestrialShipment> saveTerrestrialShipment(@Valid @RequestBody TerrestrialShipment terrestrialShipment) {
+    public ResponseEntity<TerrestrialShipment> saveTerrestrialShipment(
+            @Valid @RequestBody TerrestrialShipment terrestrialShipment) {
         return ResponseEntity.status(HttpStatus.CREATED).body(terrestrialShipmentService.save(terrestrialShipment));
     }
 
@@ -78,9 +78,8 @@ public class TerrestrialShipmentController {
     @PutMapping("/edit/{id}")
     @Operation(summary = "Edit terrestrial shipment", description = "Edits a terrestrial shipment by their ID")
     public ResponseEntity<TerrestrialShipment> editTerrestrialShipment(@PathVariable Long id,
-                                                                       @Valid @RequestBody TerrestrialShipment terrestrialShipment) {
+            @Valid @RequestBody TerrestrialShipment terrestrialShipment) {
         terrestrialShipment.setId(id);
         return ResponseEntity.ok(terrestrialShipmentService.update(terrestrialShipment));
-    }    
+    }
 }
-

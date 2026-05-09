@@ -40,7 +40,8 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
     }
 
     /**
-     * Lista envios y ajusta estados automaticamente si ya estan retrasados/cancelados por fecha.
+     * Lista envios y ajusta estados automaticamente si ya estan
+     * retrasados/cancelados por fecha.
      */
     @Override
     public List<MaritimeShipment> getAllMaritimeShipments() {
@@ -80,7 +81,8 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
         maritimeShipmentRepository.deleteById(id);
     }
 
-    // Al actualizar, si el número de guía no se proporciona, mantenemos el existente para evitar sobrescribirlo con un valor nulo o vacío
+    // Al actualizar, si el número de guía no se proporciona, mantenemos el
+    // existente para evitar sobrescribirlo con un valor nulo o vacío
     /**
      * Actualiza envio maritimo conservando guia si el cliente no la envia.
      */
@@ -91,12 +93,12 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
         applyAutomaticDiscountAndTotal(maritimeShipment);
         applyAutomaticStatusIfNecessary(maritimeShipment);
         MaritimeShipment existingShipment = maritimeShipmentRepository.findById(maritimeShipment.getId()).orElse(null);
-        if (existingShipment != null && (maritimeShipment.getGuideNumber() == null || maritimeShipment.getGuideNumber().isBlank())) {
+        if (existingShipment != null
+                && (maritimeShipment.getGuideNumber() == null || maritimeShipment.getGuideNumber().isBlank())) {
             maritimeShipment.setGuideNumber(existingShipment.getGuideNumber());
         }
         return maritimeShipmentRepository.save(maritimeShipment);
     }
-
 
     /**
      * Consulta por id y ajusta el estado automaticamente cuando aplica.
@@ -116,7 +118,8 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
     }
 
     /**
-     * Reglas de estado automatico segun fecha de entrega: delayed y luego cancelled.
+     * Reglas de estado automatico segun fecha de entrega: delayed y luego
+     * cancelled.
      */
     private boolean applyAutomaticStatusIfNecessary(MaritimeShipment shipment) {
         ShipmentStatus currentStatus = shipment.getStatus();
@@ -168,13 +171,15 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
         return String.format(Locale.ROOT, "%s%0" + GUIDE_NUMBER_LENGTH + "d", GUIDE_PREFIX, shipmentId);
     }
 
-    // Método para generar un número de guía temporal único mientras se guarda el envío por primera vez
+    // Método para generar un número de guía temporal único mientras se guarda el
+    // envío por primera vez
     private String generateTemporaryGuideNumber() {
         String suffix = UUID.randomUUID().toString().replace("-", "").substring(0, 7).toUpperCase(Locale.ROOT);
         return "TMP" + suffix;
     }
 
-    // Método para aplicar el descuento automático y calcular el costo total basado en la cantidad y el costo de envío
+    // Método para aplicar el descuento automático y calcular el costo total basado
+    // en la cantidad y el costo de envío
     private void applyAutomaticDiscountAndTotal(MaritimeShipment maritimeShipment) {
         BigDecimal quantity = maritimeShipment.getQuantity();
         BigDecimal shippingCost = maritimeShipment.getShippingCost();
@@ -194,7 +199,8 @@ public class MaritimeShipmentServiceImp implements MaritimeShipmentService {
         maritimeShipment.setTotalCost(totalCost);
     }
 
-    // Validación para asegurar que el envío marítimo tenga un origen y un destino, y que no sean el mismo puerto
+    // Validación para asegurar que el envío marítimo tenga un origen y un destino,
+    // y que no sean el mismo puerto
     private void validateOriginAndDestination(MaritimeShipment maritimeShipment) {
         if (maritimeShipment.getOriginPort() == null || maritimeShipment.getDestinationPort() == null) {
             throw new IllegalArgumentException("El envio maritimo debe tener un origen y un destino");
